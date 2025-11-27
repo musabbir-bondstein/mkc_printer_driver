@@ -20,7 +20,7 @@ app.post("/print-receipt", async (req, res) => {
     res.json({ status: "ok" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 });
 
@@ -33,7 +33,7 @@ app.post("/print-ticket", async (req, res) => {
     res.json({ status: "ok" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 });
 

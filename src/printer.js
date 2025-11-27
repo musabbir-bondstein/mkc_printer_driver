@@ -19,7 +19,12 @@ class ThermalPrinter {
     this.device = null;
 
     if (this.interface === "usb") {
-      this.device = new escpos.USB();
+      try {
+        this.device = new escpos.USB();
+      } catch (e) {
+        console.error("USB Printer NOT connected");
+        this.device = null;
+      }
     }
 
     if (this.interface === "network") {
@@ -28,15 +33,21 @@ class ThermalPrinter {
       this.device = new escpos.Network(ip, port);
     }
 
-    this.printer = new escpos.Printer(this.device, {
-      encoding: "GB18030",
-    });
+    if (this.device) {
+      this.printer = new escpos.Printer(this.device, {
+        encoding: "GB18030",
+      });
+    }
   }
 
-  print(data, type = "ticket") {
+  async print(data, type = "ticket") {
     return new Promise((resolve, reject) => {
+      if (!this.device) {
+        return reject(new Error("Printer not connected"));
+      }
+
       this.device.open(async (err) => {
-        if (err) return reject(err);
+        if (err) return reject(new Error("Cannot open printer: " + err));
 
         try {
           if (type === "ticket") {
@@ -61,10 +72,12 @@ class ThermalPrinter {
 
       const imagePath = base64ToTempImage(image);
 
-      escpos.Image.load(imagePath, (image) => {
+      escpos.Image.load(imagePath, (img) => {
+        if (!img) return reject(new Error("Failed to load image"));
+
         this.printer
           .align("CT")
-          .image(image, "s8")
+          .image(img, "s8")
           .text(vrn)
           .text(time)
           .text(`Parking Slot: ${slot}`);
