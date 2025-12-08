@@ -19,10 +19,8 @@ const printer = new PdfPrinter();
 app.post("/print-receipt", async (req, res) => {
   try {
     const data = req.body;
-    // console.log("Receipt Data:", data.print_view);
 
-    // MUST be a real file path
-    // await printer.print(data.file);
+    await printer.print(Buffer.from(data.print_data, "base64"));
 
     res.json({ status: "ok" });
   } catch (err) {
@@ -34,9 +32,8 @@ app.post("/print-receipt", async (req, res) => {
 app.post("/print-ticket", async (req, res) => {
   try {
     const data = req.body;
-    // console.log("Receipt Data:", data.print_view);
 
-    await printer.print(Buffer.from(data.print_view, "base64"));
+    await printer.print(Buffer.from(data.print_data, "base64"));
 
     res.json({ status: "ok" });
   } catch (err) {
